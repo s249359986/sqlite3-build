@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node 18
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -31,33 +31,27 @@ jobs:
         run: npm install
 
       - name: Install NW.js headers
-        run: |
-          nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
+        run: nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
 
       - name: Rebuild for NW.js
-        run: |
-          nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
+        run: nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
         env:
           npm_config_arch: ${{ matrix.arch }}
 
-      - name: Show built module
-        run: |
-          dir build\\Release
-        if: runner.os == 'Windows'
-
-      - name: Show built module (macOS)
-        run: |
-          ls -lh build/Release
+      - name: Create prebuild folder structure (macOS)
         if: runner.os == 'macOS'
-
-      - name: Create prebuild folder structure
-        shell: bash
         run: |
-          mkdir -p prebuilds/${{ runner.os }}-x64
-          cp build/Release/*.node prebuilds/${{ runner.os }}-x64/
+          mkdir -p prebuilds/darwin-x64
+          cp build/Release/*.node prebuilds/darwin-x64/
+
+      - name: Create prebuild folder structure (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir prebuilds\win32-x64
+          copy build\Release\*.node prebuilds\win32-x64\
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nwjs-0.79.1-${{ runner.os }}-x64
           path: prebuilds/
