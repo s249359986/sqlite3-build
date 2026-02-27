@@ -53,7 +53,7 @@ jobs:
           npm rebuild better-sqlite3-multiple-ciphers --build-from-source
 
       - name: Package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: better-sqlite3-multiple-ciphers-${{ matrix.os }}
           path: node_modules/better-sqlite3-multiple-ciphers/build/Release/
