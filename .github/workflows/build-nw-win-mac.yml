@@ -1,32 +1,59 @@
-name: Build NW.js 0.79.1 (Win + macOS)
+name: Build better-sqlite3-multiple-ciphers for NW.js
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-11]
+    runs-on: ${{ matrix.os }}
+    env:
+      NW_VERSION: 0.79.1
+      NODE_VERSION: 20.5.1
+      ARCH: x64
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install --ignore-scripts
-
-      - name: Build with node-gyp (Node 20 ABI)
-        run: |
-          npx node-gyp rebuild \
-            --target=20.5.1 \
-            --arch=x64 \
-            --dist-url=https://nodejs.org/download/release
-
-      - uses: actions/upload-artifact@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          name: nwjs-0.79.1-${{ runner.os }}-x64
-          path: build/Release/*.node
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install build tools
+        if: runner.os == 'Windows'
+        run: |
+          npm install -g windows-build-tools
+
+      - name: Install NW.js & nw-gyp
+        run: |
+          npm install --save-dev nw@${{ env.NW_VERSION }}
+          npm install -g nw-gyp
+          echo "NW.js version: $NW_VERSION"
+          echo "Node version: $NODE_VERSION"
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Rebuild better-sqlite3-multiple-ciphers for NW.js
+        run: |
+          # 设置 NW.js 编译环境变量
+          npm_config_target=${NW_VERSION}
+          npm_config_runtime=nw
+          npm_config_arch=${ARCH}
+          npm_config_build_from_source=true
+
+          # 重新编译 native module
+          npm rebuild better-sqlite3-multiple-ciphers --build-from-source
+
+      - name: Package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: better-sqlite3-multiple-ciphers-${{ matrix.os }}
+          path: node_modules/better-sqlite3-multiple-ciphers/build/Release/

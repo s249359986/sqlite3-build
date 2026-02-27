@@ -1,4 +1,4 @@
-name: test Build NW.js 0.79.1 (Win + macOS)
+name: tttBuild NW.js 0.79.1 (Win + macOS)
 
 on:
   workflow_dispatch:
@@ -16,15 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install nw-gyp
-        run: npm install -g nw-gyp
-
       - name: Install dependencies
         run: npm install --ignore-scripts
 
-      - name: Rebuild using Node 18 ABI
+      - name: Build with node-gyp (Node 18 ABI)
         run: |
-          nw-gyp rebuild --target=18.17.1 --arch=x64
+          npx node-gyp rebuild \
+            --target=18.17.1 \
+            --arch=x64 \
+            --dist-url=https://nodejs.org/download/release
 
       - uses: actions/upload-artifact@v4
         with:
