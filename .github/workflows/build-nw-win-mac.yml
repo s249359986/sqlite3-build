@@ -11,11 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - os: windows-latest
-            arch: x64
-          - os: macos-latest
-            arch: x64
+        os: [windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,16 +22,9 @@ jobs:
       - name: Install dependencies
         run: npm install --ignore-scripts
 
-      - name: Install NW headers
-        run: nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
-
-      - name: Build Windows
-        if: runner.os == 'Windows'
-        run: nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
-
-      - name: Build macOS x64 (Rosetta)
-        if: runner.os == 'macOS'
-        run: arch -x86_64 nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
+      - name: Rebuild using Node 18 ABI
+        run: |
+          nw-gyp rebuild --target=18.17.1 --arch=x64
 
       - uses: actions/upload-artifact@v4
         with:

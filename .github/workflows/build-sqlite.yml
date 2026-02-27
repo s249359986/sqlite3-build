@@ -1,52 +1,32 @@
-name: Build better-sqlite3-multiple-ciphers for NW.js
-on: [workflow_dispatch] # 手动触发编译
+name: Build NW.js 0.79.1 (Win + macOS)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # 编译全平台版本
-        node-version: [20.5.1] # NW.js 0.79.1 内置 Node 18.x
+        os: [windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install nw-gyp
+        run: npm install -g nw-gyp
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Rebuild using Node 18 ABI
+        run: |
+          nw-gyp rebuild --target=18.17.1 --arch=x64
+
+      - uses: actions/upload-artifact@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install build dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential python3 libsqlcipher-dev
-
-      - name: Install build dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install sqlcipher
-          xcode-select --install || true
-
-      - name: Install build dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1 # 配置 VS 编译环境
-
-      - name: Install better-sqlite3-multiple-ciphers
-        run: |
-          npm init -y
-          # 编译适配 NW.js 0.79.1 的版本
-          npm install better-sqlite3-multiple-ciphers \
-            --build-from-source \
-            --runtime=nw \
-            --target=0.79.1 \
-            --dist-url=https://nwjs.io/npm/
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: better-sqlite3-multiple-ciphers-${{ matrix.os }}
-          path: node_modules/better-sqlite3-multiple-ciphers/build/Release/ # 编译产物路径
-          
+          name: nwjs-0.79.1-${{ runner.os }}-x64
+          path: build/Release/*.node
