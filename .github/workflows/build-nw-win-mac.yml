@@ -16,13 +16,12 @@ jobs:
         arch: [x64]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node 18
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      # ❌ 删除 setup-node，使用 runner 自带 Node
+
+      - name: Show Node version
+        run: node -v
 
       - name: Install nw-gyp
         run: npm install -g nw-gyp
@@ -38,20 +37,19 @@ jobs:
         env:
           npm_config_arch: ${{ matrix.arch }}
 
-      - name: Create prebuild folder structure (macOS)
+      - name: Prepare prebuild (macOS)
         if: runner.os == 'macOS'
         run: |
           mkdir -p prebuilds/darwin-x64
           cp build/Release/*.node prebuilds/darwin-x64/
 
-      - name: Create prebuild folder structure (Windows)
+      - name: Prepare prebuild (Windows)
         if: runner.os == 'Windows'
         run: |
           mkdir prebuilds\win32-x64
           copy build\Release\*.node prebuilds\win32-x64\
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: nwjs-0.79.1-${{ runner.os }}-x64
           path: prebuilds/
