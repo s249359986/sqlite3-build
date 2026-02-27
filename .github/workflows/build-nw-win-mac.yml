@@ -1,4 +1,4 @@
-name: Build better-sqlite3-multiple-ciphers for NW.js
+name: Build better-sqlite3-multiple-ciphers for NW.js on macOS
 
 on:
   push:
@@ -7,11 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-11]
-    runs-on: ${{ matrix.os }}
+  build-macos:
+    runs-on: macos-11
     env:
       NW_VERSION: 0.79.1
       NODE_VERSION: 20.5.1
@@ -25,11 +22,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install build tools
-        if: runner.os == 'Windows'
-        run: |
-          npm install -g windows-build-tools
 
       - name: Install NW.js & nw-gyp
         run: |
@@ -52,8 +44,8 @@ jobs:
           # 重新编译 native module
           npm rebuild better-sqlite3-multiple-ciphers --build-from-source
 
-      - name: Package artifacts
+      - name: Upload compiled artifact
         uses: actions/upload-artifact@v4
         with:
-          name: better-sqlite3-multiple-ciphers-${{ matrix.os }}
+          name: better-sqlite3-macos
           path: node_modules/better-sqlite3-multiple-ciphers/build/Release/
