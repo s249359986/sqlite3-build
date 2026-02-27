@@ -1,0 +1,13 @@
+{
+  "name": "better-sqlite3-multiple-ciphers",
+  "version": "1.0.0",
+  "gypfile": true,
+  "scripts": {
+    "install": "prebuild-install || nw-gyp rebuild",
+    "prebuild": "prebuild --runtime=nw --target=0.79.1 --arch=x64 --strip"
+  },
+  "binary": {
+    "module_name": "better_sqlite3",
+    "module_path": "./prebuilds/{platform}-{arch}/"
+  }
+}
