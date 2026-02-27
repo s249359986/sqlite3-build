@@ -1,4 +1,4 @@
-name: Build NW.js 0.79.1 (Win + macOS)
+name: test Build NW.js 0.79.1 (Win + macOS)
 
 on:
   workflow_dispatch:
