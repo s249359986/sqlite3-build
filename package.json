@@ -1,0 +1,9 @@
+{
+  "name": "better-sqlite3-multiple-ciphers",
+  "version": "1.0.0",
+  "scripts": {
+    "prebuild": "prebuild --runtime=nw --target=0.79.1 --arch=x64 --strip",
+    "postinstall": "node-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers"
+  },
+  "gypfile": true
+}
