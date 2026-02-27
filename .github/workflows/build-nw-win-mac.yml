@@ -1,4 +1,4 @@
-name: Build NW.js 0.79.1 (Win + macOS)
+name: Build NW.js 0.79.1 (Win + macOS x64)
 
 on:
   workflow_dispatch:
@@ -7,18 +7,18 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        arch: [x64]
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: macos-13     # 强制 Intel x64
+            arch: x64
 
     steps:
       - uses: actions/checkout@v4
-
-      # ❌ 删除 setup-node，使用 runner 自带 Node
 
       - name: Show Node version
         run: node -v
@@ -26,13 +26,13 @@ jobs:
       - name: Install nw-gyp
         run: npm install -g nw-gyp
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies (skip scripts)
+        run: npm install --ignore-scripts
 
       - name: Install NW.js headers
         run: nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
 
-      - name: Rebuild for NW.js
+      - name: Rebuild with nw-gyp
         run: nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
         env:
           npm_config_arch: ${{ matrix.arch }}
