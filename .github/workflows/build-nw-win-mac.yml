@@ -1,0 +1,63 @@
+name: Build NW.js 0.79.1 (Win + macOS)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        arch: [x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install nw-gyp
+        run: npm install -g nw-gyp
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install NW.js headers
+        run: |
+          nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
+
+      - name: Rebuild for NW.js
+        run: |
+          nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
+        env:
+          npm_config_arch: ${{ matrix.arch }}
+
+      - name: Show built module
+        run: |
+          dir build\\Release
+        if: runner.os == 'Windows'
+
+      - name: Show built module (macOS)
+        run: |
+          ls -lh build/Release
+        if: runner.os == 'macOS'
+
+      - name: Create prebuild folder structure
+        shell: bash
+        run: |
+          mkdir -p prebuilds/${{ runner.os }}-x64
+          cp build/Release/*.node prebuilds/${{ runner.os }}-x64/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: nwjs-0.79.1-${{ runner.os }}-x64
+          path: prebuilds/
