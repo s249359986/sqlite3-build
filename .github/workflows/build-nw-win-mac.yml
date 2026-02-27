@@ -19,10 +19,10 @@ jobs:
       - name: Install dependencies
         run: npm install --ignore-scripts
 
-      - name: Build with node-gyp (Node 18 ABI)
+      - name: Build with node-gyp (Node 20 ABI)
         run: |
           npx node-gyp rebuild \
-            --target=18.17.1 \
+            --target=20.5.1 \
             --arch=x64 \
             --dist-url=https://nodejs.org/download/release
 
