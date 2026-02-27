@@ -1,4 +1,4 @@
-name: Build NW.js 0.79.1 (Win + macOS x64)
+name: Build NW.js 0.79.1 (Win + macOS)
 
 on:
   workflow_dispatch:
@@ -14,42 +14,30 @@ jobs:
         include:
           - os: windows-latest
             arch: x64
-          - os: macos-13     # 强制 Intel x64
+          - os: macos-latest
             arch: x64
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show Node version
-        run: node -v
-
       - name: Install nw-gyp
         run: npm install -g nw-gyp
 
-      - name: Install dependencies (skip scripts)
+      - name: Install dependencies
         run: npm install --ignore-scripts
 
-      - name: Install NW.js headers
+      - name: Install NW headers
         run: nw-gyp install --target=0.79.1 --dist-url=https://nwjs.io/headers
 
-      - name: Rebuild with nw-gyp
-        run: nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
-        env:
-          npm_config_arch: ${{ matrix.arch }}
-
-      - name: Prepare prebuild (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          mkdir -p prebuilds/darwin-x64
-          cp build/Release/*.node prebuilds/darwin-x64/
-
-      - name: Prepare prebuild (Windows)
+      - name: Build Windows
         if: runner.os == 'Windows'
-        run: |
-          mkdir prebuilds\win32-x64
-          copy build\Release\*.node prebuilds\win32-x64\
+        run: nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
+
+      - name: Build macOS x64 (Rosetta)
+        if: runner.os == 'macOS'
+        run: arch -x86_64 nw-gyp rebuild --target=0.79.1 --dist-url=https://nwjs.io/headers
 
       - uses: actions/upload-artifact@v4
         with:
           name: nwjs-0.79.1-${{ runner.os }}-x64
-          path: prebuilds/
+          path: build/Release/*.node
