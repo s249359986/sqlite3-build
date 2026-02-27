@@ -22,7 +22,7 @@ jobs:
       - name: Build with node-gyp (Node 18 ABI)
         run: |
           npx node-gyp rebuild \
-            --target=20.5.1 \
+            --target=18.17.1 \
             --arch=x64 \
             --dist-url=https://nodejs.org/download/release
 
