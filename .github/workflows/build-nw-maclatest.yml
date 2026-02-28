@@ -1,0 +1,33 @@
+name: Build NW.js 0.79.1 (Win + macOS)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]   # 指定 macOS Big Sur (11.x)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Build with node-gyp (Node 20 ABI)
+        run: |
+          npx node-gyp rebuild \
+            --runtime=nw \
+            --target=20.5.1 \
+            --arch=x64 \
+            --dist-url=https://nwjs.io/npm/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nwjs-0.79.1-${{ runner.os }}-x64
+          path: build/Release/*.node
