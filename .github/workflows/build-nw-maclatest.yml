@@ -25,7 +25,7 @@ jobs:
             --runtime=nw \
             --target=20.5.1 \
             --arch=x64 \
-            --dist-url=https://nwjs.io/npm/
+            --dist-url=https://nodejs.org/download/release
 
       - uses: actions/upload-artifact@v4
         with:
