@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-11]   # 指定 macOS Big Sur (11.x)
 
     steps:
       - uses: actions/checkout@v4
@@ -19,14 +19,15 @@ jobs:
       - name: Install dependencies
         run: npm install --ignore-scripts
 
-      - name: Build with node-gyp (Node 18 ABI)
+      - name: Build with node-gyp (Node 20 ABI)
         run: |
           npx node-gyp rebuild \
-            --target=18.17.1 \
+            --runtime=nw \
+            --target=20.5.1 \
             --arch=x64 \
-            --dist-url=https://nodejs.org/download/release
+            --dist-url=https://nwjs.io/npm/
 
       - uses: actions/upload-artifact@v4
         with:
           name: nwjs-0.79.1-${{ runner.os }}-x64
-          path: build/Release/*.node          
+          path: build/Release/*.node
