@@ -1,4 +1,4 @@
-name: Build NW.js 0.79.1 (Win + macOS)
+name: Build NW.js 0.72.0 (Win + macOS)
 
 on:
   workflow_dispatch:
@@ -23,11 +23,11 @@ jobs:
         run: |
           npx node-gyp rebuild \
             --runtime=nw \
-            --target=20.5.1 \
+            --target=19.3.0 \
             --arch=x64 \
             --dist-url=https://nwjs.io/npm/
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nwjs-0.79.1-${{ runner.os }}-x64
+          name: nwjs-0.72.0-${{ runner.os }}-x64
           path: build/Release/*.node
